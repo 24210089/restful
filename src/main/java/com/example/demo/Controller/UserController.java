@@ -32,12 +32,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
 
-    // Xử lý ngoại lệ Exception
-    @ExceptionHandler(IdinvalidException.class)
-    public ResponseEntity<String> handleIdException(IdinvalidException idException) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(idException.getMessage());
-    }
-
     // Delete User
     @DeleteMapping("/users/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) throws IdinvalidException {
