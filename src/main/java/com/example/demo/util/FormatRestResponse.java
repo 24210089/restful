@@ -7,14 +7,17 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import com.example.demo.Domain.RestResponse;
+
 import jakarta.servlet.http.HttpServletResponse;
 
 @ControllerAdvice
 public class FormatRestResponse implements ResponseBodyAdvice<Object> {
 
     @Override
-    public boolean supports(MethodParameter returnType, Class converterType) {
-        return true;
+    public boolean supports(MethodParameter returnType,
+            Class converterType) {
+        return true; // Format tất cả response
     }
 
     @Override
@@ -24,17 +27,25 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
             Class selectedConverterType,
             ServerHttpRequest request,
             ServerHttpResponse response) {
-        return body;
-    }
 
-    private int getStatusCode(ServerHttpResponse response) {
-        // Cast về ServletServerHttpResponse để lấy status code
-        if (response instanceof org.springframework.http.server.ServletServerHttpResponse) {
-            HttpServletResponse servletResponse = ((org.springframework.http.server.ServletServerHttpResponse) response)
-                    .getServletResponse();
-            return servletResponse.getStatus();
+        // Lấy HTTP status code
+        HttpServletResponse servletResponse = ((org.springframework.http.server.ServletServerHttpResponse) response)
+                .getServletResponse();
+        int status = servletResponse.getStatus();
+
+        // Tạo response object
+        RestResponse<Object> res = new RestResponse<>();
+
+        // Phân loại theo status code
+        if (status >= 400) {
+            return body;
+        } else {
+            // SUCCESS CASE (2xx, 3xx)
+            res.setData(body);
+            res.setMessage("Call API success");
+            res.setStatusCode(status);
         }
-        return 200; // Default
-    }
 
+        return res;
+    }
 }
